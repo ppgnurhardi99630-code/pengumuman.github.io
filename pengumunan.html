@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengumuman Kelulusan SMK Negeri 4 Enrekang 2026</title>
+    <!-- Integrasi Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Integrasi FontAwesome untuk Ikon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Kustomisasi Font & Animasi -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden relative">
+        <!-- Dekorasi Latar Belakang Header -->
+        <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+        
+        <!-- Header Section -->
+        <div class="bg-gradient-to-br from-blue-700 to-blue-500 p-8 text-center text-white">
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-graduation-cap text-4xl text-blue-600"></i>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold mb-1 tracking-tight">Pengumuman Kelulusan</h1>
+            <h2 class="text-lg sm:text-xl text-blue-100 font-medium">SMK Negeri 4 Enrekang</h2>
+            <div class="mt-3 inline-block bg-blue-800 bg-opacity-40 px-3 py-1 rounded-full text-sm font-semibold tracking-wider">
+                TAHUN AJARAN 2026
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <p class="text-gray-600">Silakan masukkan Nomor Induk Siswa Nasional (NISN) Anda untuk mengecek status kelulusan.</p>
+            </div>
+
+            <!-- Form Pencarian -->
+            <form id="checkForm" class="space-y-5">
+                <div>
+                    <label for="nisn" class="block text-sm font-semibold text-gray-700 mb-2">NISN Siswa</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-id-card text-gray-400"></i>
+                        </div>
+                        <input type="text" id="nisn" name="nisn" required 
+                               placeholder="Contoh: 0103870162" 
+                               class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-lg font-medium text-gray-800 shadow-sm"
+                               pattern="[0-9]{9,12}" 
+                               title="Masukkan angka NISN yang valid (9-12 digit)">
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md flex justify-center items-center gap-2">
+                    <i class="fas fa-search"></i> Cek Kelulusan
+                </button>
+            </form>
+
+            <!-- Loading Indicator (Hidden by default) -->
+            <div id="loading" class="hidden text-center mt-8">
+                <i class="fas fa-circle-notch fa-spin text-3xl text-blue-500"></i>
+                <p class="text-gray-500 mt-2 text-sm">Mencari data...</p>
+            </div>
+
+            <!-- Pesan Sukses (Hidden by default) -->
+            <div id="result-success" class="hidden mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-10 text-green-600">
+                    <i class="fas fa-award text-9xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="text-green-500 mb-3"><i class="fas fa-check-circle text-5xl drop-shadow-md"></i></div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 tracking-tight">SELAMAT!</h3>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-green-100 mb-4">
+                        <p class="text-sm text-gray-500 uppercase tracking-wider mb-1">Nama Siswa</p>
+                        <p id="studentName" class="text-lg font-bold text-gray-900 mb-3 border-b pb-2"></p>
+                        
+                        <p class="text-sm text-gray-500 uppercase tracking-wider mb-1">NISN</p>
+                        <p id="studentNisn" class="font-semibold text-gray-700"></p>
+                    </div>
+
+                    <p class="text-gray-700 mb-2 font-medium">Anda dinyatakan Lulus di Jurusan:</p>
+                    <div class="inline-block bg-green-600 text-white px-5 py-2 rounded-lg font-bold text-sm sm:text-base shadow-md">
+                        <span id="studentJurusan" class="uppercase"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pesan Error / Tidak Lulus (Hidden by default) -->
+            <div id="result-error" class="hidden mt-8 bg-red-50 border border-red-200 rounded-xl p-6 text-center shadow-sm">
+                <div class="text-red-500 mb-3"><i class="fas fa-times-circle text-5xl drop-shadow-md"></i></div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Mohon Maaf</h3>
+                <p class="text-gray-700 mb-3">NISN <strong id="errorNisn" class="text-red-600 font-bold border-b border-red-300 pb-0.5"></strong> tidak ditemukan dalam daftar kelulusan kami.</p>
+                <div class="bg-white p-3 rounded-md border border-red-100 text-sm text-gray-600 text-left">
+                    <p class="font-semibold mb-1"><i class="fas fa-info-circle text-blue-500 mr-1"></i> Informasi:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Pastikan NISN yang Anda masukkan sudah benar (hanya angka).</li>
+                        <li>Hubungi panitia PPDB sekolah jika merasa terjadi kesalahan data.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 p-4 border-t border-gray-100 text-center text-xs text-gray-500">
+            &copy; 2026 SMK Negeri 4 Enrekang. All rights reserved.
+        </div>
+    </div>
+
+    <!-- JavaScript Logic & Data Siswa -->
+    <script>
+        // Data Siswa diekstrak langsung dari dokumen yang diberikan.
+        const dataSiswa = {
+            // == TEKNIK OTOMOTIF ==
+            "0103870162": { nama: "RAFID FAIZAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0106993732": { nama: "MUH SALIM YAHYA", jurusan: "TEKNIK OTOMOTIF" },
+            "0099844003": { nama: "MUHAMMAD HAIKAL", jurusan: "TEKNIK OTOMOTIF" },
+            "0118725311": { nama: "MUHAMMAD ARFAL", jurusan: "TEKNIK OTOMOTIF" },
+            "0109964393": { nama: "NAUFAL GIBRAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0094403132": { nama: "RETNO SAPUTRA", jurusan: "TEKNIK OTOMOTIF" },
+            "0116689720": { nama: "MUH. TASLIM ARIFIN", jurusan: "TEKNIK OTOMOTIF" },
+            "0115438279": { nama: "ZIYAN ZEN ACHMAD", jurusan: "TEKNIK OTOMOTIF" },
+            "0096783370": { nama: "MUHAMMAD ILYAS", jurusan: "TEKNIK OTOMOTIF" },
+            "0106244136": { nama: "ILHAM", jurusan: "TEKNIK OTOMOTIF" },
+            "0095912929": { nama: "FAREL AL VARO", jurusan: "TEKNIK OTOMOTIF" },
+            "0112198749": { nama: "WAHYU", jurusan: "TEKNIK OTOMOTIF" },
+            "0113533652": { nama: "ARYA ANUGRAH PRATAMA", jurusan: "TEKNIK OTOMOTIF" },
+            "0119316161": { nama: "AHMAD ZAKY AMIR", jurusan: "TEKNIK OTOMOTIF" },
+            "0093460235": { nama: "MUHAMMAD AKBAR", jurusan: "TEKNIK OTOMOTIF" },
+            "0092983453": { nama: "MUH. RAYHAN SYAPUTRA", jurusan: "TEKNIK OTOMOTIF" },
+            "0116018958": { nama: "ARIF JUNIER CHANDRA", jurusan: "TEKNIK OTOMOTIF" },
+            "0111881357": { nama: "HABIB RAHMAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0117941482": { nama: "MUH IZHAR SAIPUL", jurusan: "TEKNIK OTOMOTIF" },
+            "0119895754": { nama: "MUH ALIF AQSAR RISAL", jurusan: "TEKNIK OTOMOTIF" },
+            "0107276483": { nama: "MUH NAUFAL HAFIZH TA'EK", jurusan: "TEKNIK OTOMOTIF" },
+            "0115318513": { nama: "ABDUL HALIM", jurusan: "TEKNIK OTOMOTIF" },
+            "0116287177": { nama: "M. AKMAL WAHYU", jurusan: "TEKNIK OTOMOTIF" },
+            "0107840148": { nama: "MUHAMMAD FADHIL AFFANDI FAYYADH", jurusan: "TEKNIK OTOMOTIF" },
+            "0115490597": { nama: "RIFKY ADITYAH", jurusan: "TEKNIK OTOMOTIF" },
+            "0107531316": { nama: "AFGAN SYAHREZA", jurusan: "TEKNIK OTOMOTIF" },
+            "0111648868": { nama: "MUHAMMAD HARIS AL FATIH", jurusan: "TEKNIK OTOMOTIF" },
+            "0096209704": { nama: "ALPIN ALPRIANSYAH", jurusan: "TEKNIK OTOMOTIF" },
+            "0117193165": { nama: "HASRIL", jurusan: "TEKNIK OTOMOTIF" },
+            "0105333514": { nama: "REZA PRATAMA", jurusan: "TEKNIK OTOMOTIF" },
+            "0107780046": { nama: "MUHAMMAD FAUZAN SAAD", jurusan: "TEKNIK OTOMOTIF" },
+            "0101978970": { nama: "AKMAL MAULANA", jurusan: "TEKNIK OTOMOTIF" },
+            "0118750057": { nama: "AHSANUL TAQWIM", jurusan: "TEKNIK OTOMOTIF" },
+            "0113720912": { nama: "ABDUL ZAKIY SHAFLY", jurusan: "TEKNIK OTOMOTIF" },
+            "0101226557": { nama: "MUH AL FURQAN WASRI", jurusan: "TEKNIK OTOMOTIF" },
+            "0114219798": { nama: "MUH. RAFIANSYAH R.", jurusan: "TEKNIK OTOMOTIF" },
+            "0102619219": { nama: "REYHAN SAPUTRA", jurusan: "TEKNIK OTOMOTIF" },
+            "0105473411": { nama: "SATYA SETIAWAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0111251397": { nama: "MUHAMMAD NUR AQSAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0117055337": { nama: "ADRIAN SYAMSUL PRATAMA", jurusan: "TEKNIK OTOMOTIF" },
+            "0116136846": { nama: "MUHAMMAD ALVIN", jurusan: "TEKNIK OTOMOTIF" },
+            "0118645732": { nama: "AFIF AL FUAD", jurusan: "TEKNIK OTOMOTIF" },
+            "0106832213": { nama: "MUHAMMAD RISWAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0114188003": { nama: "MUH. ALBISRI", jurusan: "TEKNIK OTOMOTIF" },
+            "0118122423": { nama: "MUH ASRIL ALAMSYAH", jurusan: "TEKNIK OTOMOTIF" },
+            "0118311748": { nama: "HASBY ASMAUL", jurusan: "TEKNIK OTOMOTIF" },
+            "0094876420": { nama: "MHULIS", jurusan: "TEKNIK OTOMOTIF" },
+            "0101687855": { nama: "ARKAM", jurusan: "TEKNIK OTOMOTIF" },
+            "3084170508": { nama: "AJIS SAPUTRA", jurusan: "TEKNIK OTOMOTIF" },
+            "0107052225": { nama: "TAKBIR SUDIRMAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0106521738": { nama: "NUKRAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0108141622": { nama: "YUSHAIKAL", jurusan: "TEKNIK OTOMOTIF" },
+            "0108635126": { nama: "AZWAR JUMAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0104651282": { nama: "MUH.FARHAN ATHAILLAH", jurusan: "TEKNIK OTOMOTIF" },
+            "0102623548": { nama: "MUH MURSYID AL HAFIZ", jurusan: "TEKNIK OTOMOTIF" },
+            "3106140076": { nama: "M ARIO SANDI", jurusan: "TEKNIK OTOMOTIF" },
+            "0118127267": { nama: "MUH PADLI AL PADLAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0112413317": { nama: "AHMAD RIFAI ANNAS", jurusan: "TEKNIK OTOMOTIF" },
+            "0103667376": { nama: "M AGRI", jurusan: "TEKNIK OTOMOTIF" },
+            "0108170382": { nama: "FIKRI AL PARISI", jurusan: "TEKNIK OTOMOTIF" },
+            "0105174443": { nama: "MUH SABIL AL FAROH", jurusan: "TEKNIK OTOMOTIF" },
+            "3084170509": { nama: "NABIL SETIAWAN", jurusan: "TEKNIK OTOMOTIF" },
+            "0108762043": { nama: "ISNA", jurusan: "TEKNIK OTOMOTIF" },
+            "0107781854": { nama: "MUH IKSAN ALFARIDSYI SAHRIN", jurusan: "TEKNIK OTOMOTIF" },
+            "0105544441": { nama: "MUHAMMAD ISKAL NULU", jurusan: "TEKNIK OTOMOTIF" },
+            "3078939324": { nama: "MUH RIFAIL", jurusan: "TEKNIK OTOMOTIF" },
+
+            // == DPIB ==
+            "0112808015": { nama: "NUR SAKINAH", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0111670135": { nama: "MUH. WIN AKBAR NUR KUSMAYADI", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0104821264": { nama: "SABRINA RAMADHANI HABIL", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0114674686": { nama: "NUR KHALIFA MAHIRA", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0108427838": { nama: "HASNIAR", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0115661330": { nama: "AQILA FIKRIYYAH", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0118416223": { nama: "NURUL SYIFA SALSABILAH", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0111283593": { nama: "AULIANI WAHID", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0119535823": { nama: "ALIKA KIRANA", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0117223044": { nama: "NUR AZIZA FEBRILIA", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0119450988": { nama: "NUR SAKILAH", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0105847527": { nama: "NUR AINY", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0115763818": { nama: "HUMAIRA", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0102246527": { nama: "NUR ALYA RAHMADANI", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "01033461826": { nama: "DAVID", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+            "0114177897": { nama: "NURHAKIKI SAIN", jurusan: "DESAIN PEMODELAN DAN INFORMASI BANGUNAN (DPIB)" },
+
+            // == PENGELASAN DAN FABRIKASI LOGAM ==
+            "0107210648": { nama: "MUH NIAZ MIRZA", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0118704617": { nama: "ABIL ARKAM", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0107448234": { nama: "TAUFIKHUL AQIL", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0114651496": { nama: "MUHAMMAD KHAIRUL", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0104518018": { nama: "MUHAMMAD WAHYUDIN", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0112999000": { nama: "AMIRUL MUKMINIM", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0093856982": { nama: "ILHAM ARYA", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0119968016": { nama: "MUH DZACKY MUBARAK", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0105637584": { nama: "MUH. ABDI WIJAYA", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0108355906": { nama: "ALIF AL MUZAID AMRU", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0102838434": { nama: "NIZAR SABIR", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0107444806": { nama: "MUH. SUPARDI", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0106260971": { nama: "IFAL ANUGRAH", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0102501423": { nama: "ARSYAD", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0101842488": { nama: "MUH AFDAL", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0104701274": { nama: "SUKRAN", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0106121170": { nama: "MUH AGUNG ADRIANSYAH", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+            "0105208571": { nama: "SUBAIR", jurusan: "TEKNIK PENGELASAN DAN FABRIKASI LOGAM" },
+
+            // == AKL ==
+            "0112107019": { nama: "ISNA LATIFA ARSYAD", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0106094626": { nama: "SERLI", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0111826391": { nama: "NUR SHOFIA. ZUL", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0103052399": { nama: "NURHAYATI", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0115685980": { nama: "MISDALIFA", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0112228250": { nama: "ASYFA ARIBAH", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "0112890119": { nama: "MUSDALIFA", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+            "3107801286": { nama: "ANA WAZHIFAH AL - MAHABBAH", jurusan: "AKUNTANSI DAN KEUANGAN LEMBAGA (AKL)" },
+
+            // == TJKT ==
+            "0108717297": { nama: "NUR AQILA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0103949246": { nama: "AULIA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0115561247": { nama: "NURSYAHIRA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0115925318": { nama: "SYASWANI MITHALIA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0103576545": { nama: "NUR HASYIFANI", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0113814945": { nama: "NURFAZILA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0107360457": { nama: "YULI KARTIKA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0103186433": { nama: "NAYLA ZAKIAH", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0114107005": { nama: "HAFSAH HAMID", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0109579881": { nama: "NAYSILA NURSIN", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0117383035": { nama: "ADELIYA MISRAN", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0116499580": { nama: "ABDUL FATTAH", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0109504028": { nama: "INES", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0114254010": { nama: "RASMIATI", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0114602482": { nama: "LUTHFY FAIZ FAHRY", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0111745308": { nama: "SUCI INAYATUL KHAIRAH", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0111428054": { nama: "IBRAHIM AL AKBAR", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0105358744": { nama: "KHUSNUL KHATIMAH", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0105557142": { nama: "NURUL AZIZAH", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0107089101": { nama: "MUH AL MUBARAK HARAPAN", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0117069914": { nama: "ZYAHRA AMELIAH RAMADANI", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0117020805": { nama: "RENDRA TRIKUSUMA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0106913284": { nama: "PRATIWI SUHERLIS", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0116823685": { nama: "AUDIA NI MAL MAWA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0118456609": { nama: "RAHMAWATI", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0103709860": { nama: "SITI QHAIRUL HUSNA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0108569579": { nama: "NURKI YEYSIKA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0111648607": { nama: "AMIRA NURHIKMA", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+            "0093803841": { nama: "MUHLIS", jurusan: "TEKNIK JARINGAN KOMPUTER DAN TELEKOMUNIKASI (TJKT)" },
+
+            // == TEKNIK KETENAGALISTRIKAN ==
+            "0107416326": { nama: "MUHAMMAD NAUFAL", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0116158088": { nama: "LISDAWATI", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "3105968505": { nama: "SYAHRUL SUHADA", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0106786622": { nama: "RIFKY", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0112682316": { nama: "AYYUB AL ASHARI", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0116989134": { nama: "ALIF", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0103787709": { nama: "MUHAMMAD RESTU", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0103296536": { nama: "MUH ARHAM SYAM", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0108622527": { nama: "BAYU AHMAD", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0112445603": { nama: "ABDUL RAHMAN", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0106381738": { nama: "MUH ABDULLAH IBNU MUBARAK", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0107164843": { nama: "MUHAMMAD RIZKY", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0118504656": { nama: "ASHAR", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0105547703": { nama: "AHMAD RIFAI", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0096828133": { nama: "MUH. SU’UDY AZHARY", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "01191962246": { nama: "SAMIR NASRI", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0108932413": { nama: "SUPRIANTO", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0104853067": { nama: "DANAR SAPUTRA", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0118356485": { nama: "MUHAMMAD ASKAR", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0094136192": { nama: "RENDI", jurusan: "TEKNIK KETENAGALISTRIKAN" },
+            "0105585914": { nama: "MUH SAWAL", jurusan: "TEKNIK KETENAGALISTRIKAN" }, // Extracted from file notes
+            "0113567284": { nama: "RIZKY BAYU SYAPUTRA", jurusan: "TEKNIK KETENAGALISTRIKAN" }, // In both otm & tkl based on data, set to TKL.
+            "0108907760": { nama: "NOOR KHOLIS AL AZHAR", jurusan: "TEKNIK KETENAGALISTRIKAN" }, // In both otm & tkl, set to TKL.
+            "0116224553": { nama: "LIANSA", jurusan: "TEKNIK KETENAGALISTRIKAN" } // In both pengelasan & tkl, set to TKL.
+        };
+
+        const form = document.getElementById('checkForm');
+        const nisnInput = document.getElementById('nisn');
+        const resultSuccess = document.getElementById('result-success');
+        const resultError = document.getElementById('result-error');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mengambil input NISN dan menghapus spasi di awal/akhir
+            const inputVal = nisnInput.value.trim();
+            
+            // Menyembunyikan hasil lama dan menampilkan animasi loading
+            resultSuccess.classList.add('hidden');
+            resultSuccess.classList.remove('animate-fade-in');
+            resultError.classList.add('hidden');
+            resultError.classList.remove('animate-fade-in');
+            loading.classList.remove('hidden');
+
+            // Simulasi proses delay pengecekan selama 600ms untuk User Experience yang lebih baik
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                
+                // Pengecekan data di Object dataSiswa
+                if (dataSiswa.hasOwnProperty(inputVal)) {
+                    // Jika Lulus
+                    const siswa = dataSiswa[inputVal];
+                    document.getElementById('studentName').textContent = siswa.nama;
+                    document.getElementById('studentNisn').textContent = inputVal;
+                    document.getElementById('studentJurusan').textContent = siswa.jurusan;
+                    
+                    resultSuccess.classList.remove('hidden');
+                    resultSuccess.classList.add('animate-fade-in');
+                } else {
+                    // Jika Tidak Lulus / Tidak Ditemukan
+                    document.getElementById('errorNisn').textContent = inputVal;
+                    
+                    resultError.classList.remove('hidden');
+                    resultError.classList.add('animate-fade-in');
+                }
+            }, 600);
+        });
+    </script>
+</body>
+</html>
